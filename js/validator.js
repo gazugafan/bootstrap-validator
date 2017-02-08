@@ -1,5 +1,5 @@
 /* ========================================================================
- * Bootstrap (plugin): validator.js v0.11.9
+ * Bootstrap (plugin): validator.js v0.11.10
  * ========================================================================
  * The MIT License (MIT)
  *
@@ -80,6 +80,7 @@
     delay: 500,
     html: false,
     disable: true,
+    propagate: false,
     focus: true,
     custom: {},
     errors: {
@@ -305,7 +306,12 @@
 
   Validator.prototype.onSubmit = function (e) {
     this.validate()
-    if (this.isIncomplete() || this.hasErrors()) e.preventDefault()
+    if (this.isIncomplete() || this.hasErrors()) {
+      e.preventDefault();
+      if (!this.options.propagate) {
+        e.stopImmediatePropagation();
+      }
+	}
   }
 
   Validator.prototype.toggleSubmit = function () {
