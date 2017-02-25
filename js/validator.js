@@ -1,5 +1,5 @@
 /* ========================================================================
- * Bootstrap (plugin): validator.js v0.11.9
+ * Bootstrap (plugin): validator.js v0.11.10
  * ========================================================================
  * The MIT License (MIT)
  *
@@ -80,6 +80,7 @@
     delay: 500,
     html: false,
     disable: true,
+    propagate: false,
     focus: true,
     custom: {},
     errors: {
@@ -173,6 +174,10 @@
     var errors   = []
     var deferred = $.Deferred()
 
+    var value      = getValue($el)
+    var prevValue  = $el.data('bs.validator.prev')
+    $el.data('bs.validator.prev', value);
+
     $el.data('bs.validator.deferred') && $el.data('bs.validator.deferred').reject()
     $el.data('bs.validator.deferred', deferred)
 
@@ -211,7 +216,7 @@
       }
     }, this))
 
-    if (!errors.length && getValue($el) && $el.attr('data-remote')) {
+    if (!errors.length && getValue($el) && $el.attr('data-remote') && !this.options.disableAjax && value != prevValue) {
       this.defer($el, function () {
         var data = {}
         data[$el.attr('name')] = getValue($el)
@@ -305,7 +310,12 @@
 
   Validator.prototype.onSubmit = function (e) {
     this.validate()
-    if (this.isIncomplete() || this.hasErrors()) e.preventDefault()
+    if (this.isIncomplete() || this.hasErrors()) {
+      e.preventDefault();
+      if (!this.options.propagate) {
+        e.stopImmediatePropagation();
+      }
+	}
   }
 
   Validator.prototype.toggleSubmit = function () {
